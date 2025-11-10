@@ -36,7 +36,14 @@ HCP Terraform에서 Settings > VCS Providers로 이동하여 GitHub 연결을 �
 
 ### 3. 변수 설정
 
-`terraform.tfvars` 파일을 생성하거나 환경 변수로 설정합니다:
+`terraform.tfvars.example` 파일을 참고하여 `terraform.tfvars` 파일을 생성하거나 환경 변수로 설정합니다:
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+# terraform.tfvars 파일을 편집하여 실제 값을 입력하세요
+```
+
+또는 직접 생성:
 
 ```hcl
 tfe_hostname         = "app.terraform.io"
@@ -46,6 +53,8 @@ github_repo_identifier = "Great-Stone/terraform-platform-engineering-demo"
 github_branch        = "main"
 github_oauth_token_id = "ot-xxxxxxxxxxxxx"
 ```
+
+**주의**: `terraform.tfvars` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다. 절대 Git에 커밋하지 마세요!
 
 또는 환경 변수로 설정:
 

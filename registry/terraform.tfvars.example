@@ -1,0 +1,11 @@
+# TFE/HCP Terraform 설정 예제
+# 이 파일을 terraform.tfvars로 복사하고 실제 값을 입력하세요.
+
+tfe_hostname = "app.terraform.io"
+tfe_token    = "your-tfe-token-here"
+tfe_organization = "your-organization-name"
+
+github_repo_identifier = "your-org/your-repo"
+github_branch          = "main"
+github_oauth_token_id  = "your-oauth-token-id"
+
