@@ -44,7 +44,7 @@ resource "tfe_registry_module" "addon_lb" {
 }
 
 # Base 3-tier No-Code 모듈
-# default가 없는 변수들: project_name, web_instance_type, was_instance_type, web_instance_count, was_instance_count, db_password
+# default가 없는 변수들: project_name, web_instance_type, was_instance_type, web_instance_count, was_instance_count, db_engine_version, db_password
 resource "tfe_no_code_module" "base_3tier" {
   organization    = var.tfe_organization
   registry_module = tfe_registry_module.base_3tier.id
@@ -61,6 +61,12 @@ resource "tfe_no_code_module" "base_3tier" {
     name    = "was_instance_type"
     type    = "string"
     options = ["t3.micro", "t3.small", "t3.medium"]
+  }
+
+  variable_options {
+    name    = "db_engine_version"
+    type    = "string"
+    options = ["17.5", "16.9", "15.13"]
   }
 }
 
