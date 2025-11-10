@@ -1,0 +1,146 @@
+locals {
+  name_prefix = "${var.project_name}-${var.environment}"
+  alb_name    = var.alb_name != "" ? var.alb_name : "${local.name_prefix}-alb"
+  common_tags = merge(
+    {
+      Project     = var.project_name
+      Environment = var.environment
+      Module      = "addon-lb"
+      ManagedBy   = "terraform"
+    },
+    var.tags
+  )
+
+  vpc_id             = data.terraform_remote_state.base_3tier.outputs.vpc_id
+  public_subnet_ids = data.terraform_remote_state.base_3tier.outputs.public_subnet_ids
+  web_instance_ids  = data.terraform_remote_state.base_3tier.outputs.web_instance_ids
+}
+
+# Security Group for ALB
+resource "aws_security_group" "alb" {
+  name        = "${local.name_prefix}-alb-sg"
+  description = "Security group for Application Load Balancer"
+  vpc_id      = local.vpc_id
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    {
+      Name = "${local.name_prefix}-alb-sg"
+    },
+    local.common_tags
+  )
+}
+
+# Application Load Balancer
+resource "aws_lb" "main" {
+  name               = local.alb_name
+  internal           = var.internal
+  load_balancer_type = var.load_balancer_type
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = local.public_subnet_ids
+
+  enable_deletion_protection = var.enable_deletion_protection
+  enable_http2               = var.enable_http2
+  idle_timeout               = var.idle_timeout
+
+  tags = merge(
+    {
+      Name = local.alb_name
+    },
+    local.common_tags
+  )
+}
+
+# Target Group
+resource "aws_lb_target_group" "main" {
+  name     = "${local.name_prefix}-tg"
+  port     = var.target_port
+  protocol = var.target_protocol
+  vpc_id   = local.vpc_id
+
+  target_type = var.target_type
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = var.healthy_threshold
+    unhealthy_threshold = var.unhealthy_threshold
+    timeout             = var.health_check_timeout
+    interval            = var.health_check_interval
+    path                = var.health_check_path
+    protocol            = var.target_protocol
+    matcher             = "200"
+  }
+
+  tags = merge(
+    {
+      Name = "${local.name_prefix}-tg"
+    },
+    local.common_tags
+  )
+}
+
+# Target Group Attachment - Web Instances
+resource "aws_lb_target_group_attachment" "web" {
+  count            = length(local.web_instance_ids)
+  target_group_arn = aws_lb_target_group.main.arn
+  target_id        = local.web_instance_ids[count.index]
+  port             = var.target_port
+}
+
+# ALB Listener
+resource "aws_lb_listener" "main" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = var.listener_port
+  protocol          = var.listener_protocol
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+
+  dynamic "default_action" {
+    for_each = var.certificate_arn != null ? [1] : []
+    content {
+      type             = "forward"
+      target_group_arn = aws_lb_target_group.main.arn
+    }
+  }
+}
+
+# HTTPS Listener (if certificate is provided)
+resource "aws_lb_listener" "https" {
+  count             = var.certificate_arn != null ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  certificate_arn   = var.certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+}
+
