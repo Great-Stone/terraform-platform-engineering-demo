@@ -22,20 +22,15 @@ resource "aws_security_group" "alb" {
   description = "Security group for Application Load Balancer"
   vpc_id      = local.vpc_id
 
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.listener_ports
+    content {
+      description = "Allow inbound traffic on port ${ingress.value}"
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   egress {
@@ -109,38 +104,21 @@ resource "aws_lb_target_group_attachment" "web" {
   port             = var.target_port
 }
 
-# ALB Listener
+# ALB Listeners
 resource "aws_lb_listener" "main" {
+  for_each = var.listeners
+
   load_balancer_arn = aws_lb.main.arn
-  port              = var.listener_port
-  protocol          = var.listener_protocol
+  port              = each.value.port
+  protocol          = each.value.protocol
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.main.arn
   }
 
-  dynamic "default_action" {
-    for_each = var.certificate_arn != null ? [1] : []
-    content {
-      type             = "forward"
-      target_group_arn = aws_lb_target_group.main.arn
-    }
-  }
-}
-
-# HTTPS Listener (if certificate is provided)
-resource "aws_lb_listener" "https" {
-  count             = var.certificate_arn != null ? 1 : 0
-  load_balancer_arn = aws_lb.main.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = var.certificate_arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.main.arn
-  }
+  # SSL 설정 (HTTPS인 경우)
+  ssl_policy      = each.value.protocol == "HTTPS" ? (each.value.ssl_policy != null ? each.value.ssl_policy : "ELBSecurityPolicy-TLS-1-2-2017-01") : null
+  certificate_arn = each.value.certificate_arn
 }
 

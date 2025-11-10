@@ -5,12 +5,15 @@
 ## 기능
 
 - Application Load Balancer (ALB) 생성
-- Target Group 생성 및 Web 인스턴스 연결
-- ALB Security Group 생성
-- HTTP/HTTPS 리스너 설정
+- Target Group 생성 및 Web 인스턴스 연결 (base-3tier의 remote state에서 자동으로 인스턴스 ID 가져옴)
+- ALB Security Group 생성 (사용자 지정 포트 지원)
+- HTTP/HTTPS 리스너 설정 (사용자 지정 포트 지원)
 - 헬스 체크 설정
+- 사용자 지정 대상 포트(target_port) 지원
 
 ## 사용 예제
+
+기본 사용 (HTTP 리스너, 포트 80):
 
 ```hcl
 module "addon_lb" {
@@ -33,6 +36,41 @@ module "addon_lb" {
 }
 ```
 
+사용자 지정 포트를 사용하는 경우:
+
+```hcl
+module "addon_lb" {
+  source = "Great-Stone/terraform-platform-engineering-demo/terraform-aws-addon-lb"
+
+  project_name              = "my-project"
+  environment               = "dev"
+  base_3tier_workspace_name = "my-project-dev-base-3tier"
+  
+  # ALB에서 받을 inbound 포트 (Security Group)
+  listener_ports = [8080, 8443]
+  
+  # ALB 리스너 설정
+  listeners = {
+    http = {
+      port     = 8080
+      protocol = "HTTP"
+    }
+    https = {
+      port          = 8443
+      protocol      = "HTTPS"
+      certificate_arn = "arn:aws:acm:region:account:certificate/cert-id"
+    }
+  }
+  
+  # 대상 서비스 포트
+  target_port = 3000
+  
+  tags = {
+    Team = "platform"
+  }
+}
+```
+
 HTTPS 리스너를 사용하는 경우:
 
 ```hcl
@@ -43,8 +81,19 @@ module "addon_lb" {
   environment               = "dev"
   base_3tier_workspace_name = "my-project-dev-base-3tier"
   
-  listener_protocol = "HTTPS"
-  certificate_arn   = "arn:aws:acm:region:account:certificate/cert-id"
+  listener_ports = [80, 443]
+  
+  listeners = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+    }
+    https = {
+      port          = 443
+      protocol      = "HTTPS"
+      certificate_arn = "arn:aws:acm:region:account:certificate/cert-id"
+    }
+  }
   
   tags = {
     Team = "platform"
@@ -66,17 +115,25 @@ module "addon_lb" {
 | enable_http2 | HTTP/2 활성화 | `bool` | `true` | 아니오 |
 | idle_timeout | 유휴 타임아웃 (초) | `number` | `60` | 아니오 |
 | target_type | 타겟 타입 (instance, ip, lambda) | `string` | `"instance"` | 아니오 |
-| target_port | 타겟 포트 | `number` | `80` | 아니오 |
+| target_port | 타겟 포트 (대상 서비스의 포트) | `number` | - | 예 |
 | target_protocol | 타겟 프로토콜 (HTTP, HTTPS) | `string` | `"HTTP"` | 아니오 |
 | health_check_path | 헬스 체크 경로 | `string` | `"/"` | 아니오 |
 | health_check_interval | 헬스 체크 간격 (초) | `number` | `30` | 아니오 |
 | health_check_timeout | 헬스 체크 타임아웃 (초) | `number` | `5` | 아니오 |
 | healthy_threshold | 정상 임계값 | `number` | `2` | 아니오 |
 | unhealthy_threshold | 비정상 임계값 | `number` | `2` | 아니오 |
-| listener_port | 리스너 포트 | `number` | `80` | 아니오 |
-| listener_protocol | 리스너 프로토콜 (HTTP, HTTPS) | `string` | `"HTTP"` | 아니오 |
-| certificate_arn | SSL 인증서 ARN (HTTPS 리스너인 경우) | `string` | `null` | 아니오 |
+| listener_ports | ALB에서 허용할 inbound 포트 목록 (Security Group용) | `list(number)` | `[80, 443]` | 아니오 |
+| listeners | ALB 리스너 설정 목록 | `map(object)` | `{http = {port = 80, protocol = "HTTP"}}` | 아니오 |
 | tags | 추가 태그 | `map(string)` | `{}` | 아니오 |
+
+### listeners 객체 구조
+
+| 속성 | 설명 | 타입 | 필수 |
+|------|------|------|------|
+| port | 리스너 포트 | `number` | 예 |
+| protocol | 리스너 프로토콜 (HTTP, HTTPS) | `string` | 예 |
+| certificate_arn | SSL 인증서 ARN (HTTPS인 경우) | `string` | 아니오 |
+| ssl_policy | SSL 정책 (HTTPS인 경우) | `string` | 아니오 |
 
 ## 출력 값
 
@@ -103,7 +160,16 @@ module "addon_lb" {
 참조하는 출력값:
 - `vpc_id`: VPC ID
 - `public_subnet_ids`: Public 서브넷 ID 목록
-- `web_instance_ids`: Web 인스턴스 ID 목록
+- `web_instance_ids`: Web 인스턴스 ID 목록 (타겟 그룹에 자동 연결)
+
+### 타겟 포트 설정
+
+`target_port` 변수를 통해 base-3tier의 Web 인스턴스들이 어떤 포트로 트래픽을 받을지 지정할 수 있습니다. 이 포트는 타겟 그룹과 타겟 그룹 attachment에 사용됩니다.
+
+예를 들어:
+- `target_port = 80`: Web 서버가 HTTP(80) 포트로 트래픽을 받음
+- `target_port = 3000`: Web 서버가 3000 포트로 트래픽을 받음
+- `target_port = 8080`: Web 서버가 8080 포트로 트래픽을 받음
 
 ## 요구사항
 

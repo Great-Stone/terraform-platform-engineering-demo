@@ -57,9 +57,8 @@ variable "target_type" {
 }
 
 variable "target_port" {
-  description = "타겟 포트"
+  description = "타겟 포트 (대상 서비스의 포트)"
   type        = number
-  default     = 80
 }
 
 variable "target_protocol" {
@@ -98,22 +97,19 @@ variable "unhealthy_threshold" {
   default     = 2
 }
 
-variable "listener_port" {
-  description = "리스너 포트"
-  type        = number
-  default     = 80
+variable "listener_ports" {
+  description = "ALB에서 허용할 inbound 포트 목록 (Security Group용)"
+  type        = list(number)
 }
 
-variable "listener_protocol" {
-  description = "리스너 프로토콜 (HTTP, HTTPS)"
-  type        = string
-  default     = "HTTP"
-}
-
-variable "certificate_arn" {
-  description = "SSL 인증서 ARN (HTTPS 리스너인 경우)"
-  type        = string
-  default     = null
+variable "listeners" {
+  description = "ALB 리스너 설정 목록"
+  type = map(object({
+    port          = number
+    protocol      = string
+    certificate_arn = optional(string)
+    ssl_policy    = optional(string)
+  }))
 }
 
 variable "tags" {

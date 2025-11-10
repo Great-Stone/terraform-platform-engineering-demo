@@ -74,8 +74,17 @@ module "addon_lb" {
   healthy_threshold     = 2
   unhealthy_threshold   = 2
 
-  listener_port     = 80
-  listener_protocol = "HTTP"
+  listener_ports = [80, 443]
+  listeners = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+    }
+    https = {
+      port     = 443
+      protocol = "HTTPS"
+    }
+  }
 
   tags = {
     Example = "true"
