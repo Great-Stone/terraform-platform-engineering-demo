@@ -141,6 +141,13 @@ terraform-platform-engineering-demo/
 │   └── base-3tier-with-lb/
 │       ├── main.tf
 │       └── versions.tf
+├── registry/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── versions.tf
+│   ├── README.md
+│   └── .gitignore
 └── README.md
 ```
 
@@ -180,6 +187,21 @@ terraform apply
 ## HCP Terraform 등록
 
 각 모듈은 HCP Terraform Private Module Registry에 등록할 수 있습니다.
+
+### 자동 등록 (권장)
+
+TFE 프로바이더를 사용하여 모듈을 자동으로 등록할 수 있습니다:
+
+```bash
+cd registry
+terraform init
+terraform plan
+terraform apply
+```
+
+자세한 내용은 [registry/README.md](registry/README.md)를 참고하세요.
+
+### 수동 등록
 
 1. GitHub 저장소에 모듈 코드 푸시
 2. HCP Terraform에서 Private Module Registry로 이동
