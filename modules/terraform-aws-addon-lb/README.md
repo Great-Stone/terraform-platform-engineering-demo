@@ -13,7 +13,7 @@
 
 ## 사용 예제
 
-기본 사용 (HTTP 리스너, 포트 80):
+기본 사용 (HTTP 리스너, 포트 80 - 기본값 사용):
 
 ```hcl
 module "addon_lb" {
@@ -26,9 +26,14 @@ module "addon_lb" {
   alb_name = "my-project-dev-alb"
   
   target_port = 80
-  target_protocol = "HTTP"
   
-  health_check_path = "/"
+  # listeners와 listener_ports는 기본값 사용 (HTTP 포트 80)
+  # listeners = {
+  #   http = {
+  #     port     = 80
+  #     protocol = "HTTP"
+  #   }
+  # }
   
   tags = {
     Team = "platform"
@@ -122,7 +127,7 @@ module "addon_lb" {
 | health_check_timeout | 헬스 체크 타임아웃 (초) | `number` | `5` | 아니오 |
 | healthy_threshold | 정상 임계값 | `number` | `2` | 아니오 |
 | unhealthy_threshold | 비정상 임계값 | `number` | `2` | 아니오 |
-| listener_ports | ALB에서 허용할 inbound 포트 목록 (Security Group용) | `list(number)` | `[80, 443]` | 아니오 |
+| listener_ports | ALB에서 허용할 inbound 포트 목록 (Security Group용) | `list(number)` | `[80]` | 아니오 |
 | listeners | ALB 리스너 설정 목록 | `map(object)` | `{http = {port = 80, protocol = "HTTP"}}` | 아니오 |
 | tags | 추가 태그 | `map(string)` | `{}` | 아니오 |
 

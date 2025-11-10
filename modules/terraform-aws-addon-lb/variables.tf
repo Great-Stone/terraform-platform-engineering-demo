@@ -100,6 +100,7 @@ variable "unhealthy_threshold" {
 variable "listener_ports" {
   description = "ALB에서 허용할 inbound 포트 목록 (Security Group용)"
   type        = list(number)
+  default     = [80]
 }
 
 variable "listeners" {
@@ -110,6 +111,12 @@ variable "listeners" {
     certificate_arn = optional(string)
     ssl_policy    = optional(string)
   }))
+  default = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+    }
+  }
 }
 
 variable "tags" {

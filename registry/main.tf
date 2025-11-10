@@ -80,7 +80,7 @@ resource "tfe_no_code_module" "addon_s3" {
 }
 
 # LB Add-on No-Code 모듈
-# default가 없는 변수들: project_name, base_3tier_workspace_name, listener_ports, listeners, target_port
+# default가 없는 변수들: project_name, base_3tier_workspace_name, target_port
 resource "tfe_no_code_module" "addon_lb" {
   organization    = var.tfe_organization
   registry_module = tfe_registry_module.addon_lb.id
