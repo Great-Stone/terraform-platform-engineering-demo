@@ -6,6 +6,10 @@ HCP Terraform을 활용한 플랫폼 엔지니어링 데모 프로젝트입니�
 
 이 프로젝트는 HCP Terraform의 Private Module Registry를 활용하여 플랫폼 엔지니어링 데모를 제공합니다. 사용자는 코드 없이 표준 3-tier 아키텍처를 배포하고, 필요에 따라 S3나 Load Balancer 같은 add-on 리소스를 추가할 수 있습니다.
 
+### Demo youtube
+
+[![Terraform no code demo](http://img.youtube.com/vi/TLYWsUnbhjg/0.jpg)](https://youtu.be/TLYWsUnbhjg?t=0s)
+
 ## 모듈 구조
 
 ### Base 모듈
