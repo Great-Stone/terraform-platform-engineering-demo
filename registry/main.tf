@@ -89,7 +89,7 @@ resource "tfe_no_code_module" "addon_lb" {
 
   variable_options {
     name    = "target_port"
-    type    = "string"
+    type    = "number"
     options = ["80", "443", "3000", "8080", "8443", "9000", "9090"]
   }
 }
