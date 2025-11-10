@@ -42,25 +42,21 @@ variable "rds_subnet_cidrs" {
 variable "web_instance_type" {
   description = "Web 서버 인스턴스 타입"
   type        = string
-  default     = "t3.micro"
 }
 
 variable "was_instance_type" {
   description = "WAS 서버 인스턴스 타입"
   type        = string
-  default     = "t3.micro"
 }
 
 variable "web_instance_count" {
   description = "Web 서버 인스턴스 개수"
   type        = number
-  default     = 1
 }
 
 variable "was_instance_count" {
   description = "WAS 서버 인스턴스 개수"
   type        = number
-  default     = 1
 }
 
 variable "db_instance_class" {

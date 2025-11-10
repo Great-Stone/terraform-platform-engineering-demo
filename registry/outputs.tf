@@ -28,3 +28,18 @@ output "addon_lb_module_name" {
   value       = tfe_registry_module.addon_lb.name
 }
 
+output "base_3tier_no_code_module_id" {
+  description = "Base 3-tier No-Code 모듈 ID"
+  value       = tfe_no_code_module.base_3tier.id
+}
+
+output "addon_s3_no_code_module_id" {
+  description = "S3 Add-on No-Code 모듈 ID"
+  value       = tfe_no_code_module.addon_s3.id
+}
+
+output "addon_lb_no_code_module_id" {
+  description = "LB Add-on No-Code 모듈 ID"
+  value       = tfe_no_code_module.addon_lb.id
+}
+

@@ -4,11 +4,11 @@
 
 ## 개요
 
-[TFE 프로바이더](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs)를 사용하여 다음 모듈들을 자동으로 등록합니다:
+[TFE 프로바이더](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs)를 사용하여 다음 모듈들을 자동으로 등록하고 no-code 모듈로 활성화합니다:
 
-- `terraform-aws-base-3tier`
-- `terraform-aws-addon-s3`
-- `terraform-aws-addon-lb`
+- `terraform-aws-base-3tier` (Registry Module + No-Code Module)
+- `terraform-aws-addon-s3` (Registry Module + No-Code Module)
+- `terraform-aws-addon-lb` (Registry Module + No-Code Module)
 
 ## 사전 요구사항
 
@@ -104,6 +104,9 @@ terraform apply
 | addon_s3_module_name | S3 Add-on 모듈 이름 |
 | addon_lb_module_id | LB Add-on 모듈 ID |
 | addon_lb_module_name | LB Add-on 모듈 이름 |
+| base_3tier_no_code_module_id | Base 3-tier No-Code 모듈 ID |
+| addon_s3_no_code_module_id | S3 Add-on No-Code 모듈 ID |
+| addon_lb_no_code_module_id | LB Add-on No-Code 모듈 ID |
 
 ## 참고 자료
 
