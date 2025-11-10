@@ -40,7 +40,7 @@ module "base_3tier" {
   db_username          = "postgres"
   db_password          = "ChangeMe123!" # 실제 환경에서는 변수나 Secrets Manager 사용
   db_port              = 5432
-  db_engine_version    = "15.4"
+  db_engine_version    = "15.13"
 
   tags = {
     Example = "true"

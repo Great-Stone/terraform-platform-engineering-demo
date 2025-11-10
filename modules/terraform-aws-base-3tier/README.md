@@ -68,8 +68,10 @@ module "base_3tier" {
 | db_username | 데이터베이스 마스터 사용자 이름 | `string` | `"postgres"` | 아니오 |
 | db_password | 데이터베이스 마스터 비밀번호 | `string` | - | 예 |
 | db_port | 데이터베이스 포트 | `number` | `5432` | 아니오 |
-| db_engine_version | PostgreSQL 엔진 버전 | `string` | `"15.4"` | 아니오 |
+| db_engine_version | PostgreSQL 엔진 버전 | `string` | `"15.13"` | 아니오 |
 | tags | 추가 태그 | `map(string)` | `{}` | 아니오 |
+
+[PostgreSQL 엔진 버전 목록](https://docs.aws.amazon.com/ko_kr/AmazonRDS/latest/PostgreSQLReleaseNotes/doc-history.html)
 
 ## 출력 값
 
