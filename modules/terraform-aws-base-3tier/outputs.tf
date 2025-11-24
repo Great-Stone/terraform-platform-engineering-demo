@@ -73,26 +73,6 @@ output "was_instance_private_ips" {
   value       = aws_instance.was[*].private_ip
 }
 
-output "rds_endpoint" {
-  description = "RDS 엔드포인트"
-  value       = aws_db_instance.main.endpoint
-}
-
-output "rds_address" {
-  description = "RDS 주소"
-  value       = aws_db_instance.main.address
-}
-
-output "rds_port" {
-  description = "RDS 포트"
-  value       = aws_db_instance.main.port
-}
-
-output "rds_db_name" {
-  description = "RDS 데이터베이스 이름"
-  value       = aws_db_instance.main.db_name
-}
-
 output "project_name" {
   description = "프로젝트 이름"
   value       = var.project_name
